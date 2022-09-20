@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import Card from "./components/Card";
 
@@ -14,6 +14,9 @@ const cardImages = [
 function App() {
   const [cards, setCards] = useState([]);
   const [turns, setTurns] = useState(0);
+  const [choiceOne, setChoiceOne] = useState(null);
+  const [choiceTwo, setChoiceTwo] = useState(null);
+
   const shuffleCards = () => {
     const shuffledCards = [...cardImages, ...cardImages]
       .sort(() => Math.random() - 0.5)
@@ -23,7 +26,28 @@ function App() {
     setTurns(0)
   };
 
-  // console.log(cards, turns)
+  const handleChoice = (card) => {
+    choiceOne ? setChoiceTwo(card) : setChoiceOne(card)
+  }
+
+  // compare two selected cards; useEffect fires when the component first mounts and then again when dependency changes
+  useEffect(() => {
+    if (choiceOne && choiceTwo) {
+      if (choiceOne.src === choiceTwo.src) {
+        console.log('those cards match')
+        resetTurn();
+      } else {
+        console.log('those cards don\'t match')
+        resetTurn();
+      }
+    }
+  }, [choiceOne, choiceTwo])
+
+  const resetTurn = () => {
+    setChoiceOne(null)
+    setChoiceTwo(null)
+    setTurns(previousTurns => previousTurns + 1)
+  }
 
   return (
     <div className="App">
@@ -31,7 +55,7 @@ function App() {
       <button onClick={shuffleCards}>New Game</button>
       <div className="card-grid">
         {cards.map(card => (
-          <Card key={card.id} card={card}/>
+          <Card key={card.id} card={card} handleChoice={handleChoice} />
         ))}
       </div>
     </div>
